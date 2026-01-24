@@ -1,6 +1,6 @@
 # **🚀 Alias Manager TUI**
 
-A production-grade, interactive terminal user interface (TUI) for managing your Bash and Zsh aliases with ease. No more manual editing of `.bashrc` or `.zshrc`—add, remove, backup, and restore aliases through a slick, color-coded interface.
+A colourful, interactive terminal user interface (TUI) for managing your Bash and Zsh aliases with ease. No more manual editing of `.bashrc` or `.zshrc`—add, remove, backup, and restore aliases through a slick, color-coded interface.
 
 ## **✨ Features**
 
