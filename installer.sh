@@ -25,7 +25,28 @@ echo -e "${BOLD}${BLUE}"
 echo "    🧪 Alias Manager TUI Installer"
 echo -e "    ------------------------------${RESET}\n"
 
-# 1. Check Dependencies
+# 1. Detect Shell (Pre-check)
+if [[ "$SHELL" == *"zsh"* ]]; then
+    TARGET_RC="$HOME/.zshrc"
+    SHELL_NAME="Zsh"
+else
+    TARGET_RC="$HOME/.bashrc"
+    SHELL_NAME="Bash"
+fi
+
+echo -e "  ${BOLD}Plan:${RESET}"
+echo -e "  1. Install script to: ${CYAN}$INSTALL_PATH${RESET}"
+echo -e "  2. Install placeholders to: ${CYAN}$PLACEHOLDERS_PATH${RESET}"
+echo -e "  3. Modify shell config: ${CYAN}$TARGET_RC${RESET} ($SHELL_NAME)"
+echo -e ""
+read -p "  Do you want to proceed? (y/N): " confirm
+if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
+    echo -e "\n  ${RED}Installation cancelled by user.${RESET}"
+    exit 0
+fi
+echo -e ""
+
+# 2. Check Dependencies
 print_step "Checking dependencies..."
 for cmd in python3 curl grep sed; do
     if ! command -v $cmd &> /dev/null; then
@@ -33,15 +54,6 @@ for cmd in python3 curl grep sed; do
     fi
 done
 print_success "All dependencies met."
-
-# 2. Detect Shell
-print_step "Detecting shell environment..."
-if [[ "$SHELL" == *"zsh"* ]]; then
-    TARGET_RC="$HOME/.zshrc"
-    print_success "Zsh detected. Target: $TARGET_RC"
-else
-    print_success "Bash detected. Target: $TARGET_RC"
-fi
 
 # 3. Download / Copy the script
 print_step "Installing manager script..."
