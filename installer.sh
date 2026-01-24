@@ -70,9 +70,22 @@ print_step "Installing manager script..."
 if [ -f "alias_manager.sh" ]; then
     cp alias_manager.sh "$INSTALL_PATH"
     [[ -f "alias_manager_placeholders.sh" ]] && cp alias_manager_placeholders.sh "$PLACEHOLDERS_PATH"
+    
+    mkdir -p "$FUNCTIONS_DIR"
+    if [[ -d "functions" ]]; then
+        cp functions/*.bash "$FUNCTIONS_DIR/" 2>/dev/null
+    fi
 else
     curl -sSL "$REPO_RAW_URL" -o "$INSTALL_PATH" || print_error "Failed to download main script."
     curl -sSL "$REPO_PLACEHOLDERS_URL" -o "$PLACEHOLDERS_PATH" || print_error "Failed to download placeholders."
+    
+    # Download sample functions
+    mkdir -p "$FUNCTIONS_DIR"
+    echo -e "${GRAY}Downloading sample functions...${RESET}"
+    BASE_FUNC_URL="https://raw.githubusercontent.com/sdewis/ShellAliasManager/main/functions"
+    for func in mkcd.bash extract.bash wttr.bash; do
+        curl -sSL "$BASE_FUNC_URL/$func" -o "$FUNCTIONS_DIR/$func"
+    done
 fi
 chmod +x "$INSTALL_PATH"
 [[ -f "$PLACEHOLDERS_PATH" ]] && chmod +x "$PLACEHOLDERS_PATH"
