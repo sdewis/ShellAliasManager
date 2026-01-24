@@ -169,6 +169,9 @@ install_gomenu() {
         elif [[ -f "$temp_dir/installer.sh" ]]; then
              echo -e "  ${GRAY}Running installer.sh...${RESET}"
             bash "$temp_dir/installer.sh"
+        elif [[ -f "$temp_dir/install-gocode-gomenu.sh" ]]; then
+             echo -e "  ${GRAY}Running install-gocode-gomenu.sh...${RESET}"
+            bash "$temp_dir/install-gocode-gomenu.sh"
         else
             show_status "$RED" "No installer script found in the repository."
             ls -F "$temp_dir" # Show files for debugging context if needed
