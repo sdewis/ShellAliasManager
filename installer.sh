@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # --- CONFIGURATION ---
-REPO_RAW_URL="https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/alias_manager.sh"
+REPO_RAW_URL="https://raw.githubusercontent.com/sdewis/ShellAliasManager/main/alias_manager.sh"
+REPO_PLACEHOLDERS_URL="https://raw.githubusercontent.com/sdewis/ShellAliasManager/main/alias_manager_placeholders.sh"
 INSTALL_PATH="$HOME/.alias_manager.sh"
 PLACEHOLDERS_PATH="$HOME/.alias_manager_placeholders.sh"
 TARGET_RC="$HOME/.bashrc"
@@ -49,8 +50,8 @@ if [ -f "alias_manager.sh" ]; then
     cp alias_manager.sh "$INSTALL_PATH"
     [[ -f "alias_manager_placeholders.sh" ]] && cp alias_manager_placeholders.sh "$PLACEHOLDERS_PATH"
 else
-    curl -sSL "$REPO_RAW_URL" -o "$INSTALL_PATH" || print_error "Failed to download script."
-    # Assuming placeholders file is in the same repo location (user would need to update REPO URL logic for full remote install)
+    curl -sSL "$REPO_RAW_URL" -o "$INSTALL_PATH" || print_error "Failed to download main script."
+    curl -sSL "$REPO_PLACEHOLDERS_URL" -o "$PLACEHOLDERS_PATH" || print_error "Failed to download placeholders."
 fi
 chmod +x "$INSTALL_PATH"
 [[ -f "$PLACEHOLDERS_PATH" ]] && chmod +x "$PLACEHOLDERS_PATH"

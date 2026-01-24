@@ -16,7 +16,7 @@ A production-grade, interactive terminal user interface (TUI) for managing your 
 You can install the Alias Manager TUI with a single command:  
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/sdewis/AliasManagerTUI/main/installer.sh | bash
+curl -sSL https://raw.githubusercontent.com/sdewis/ShellAliasManager/main/installer.sh | bash
 ```
 
 ## **🛠 Usage**
