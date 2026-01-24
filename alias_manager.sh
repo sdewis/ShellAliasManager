@@ -144,6 +144,69 @@ for a in data:
     show_status "$GREEN" "Import complete."
 }
 
+# --- OTHER TOOLS ---
+install_gomenu() {
+    draw_header
+    echo -e "  ${BOLD}Installing gomenu...${RESET}"
+    
+    if ! command -v git &> /dev/null; then
+        show_status "$RED" "Git is required but not installed."
+        wait_key
+        return
+    fi
+
+    local repo_url="https://github.com/sdewis/GoCodeShellMenu.git"
+    local temp_dir=$(mktemp -d)
+    
+    echo -e "  ${GRAY}Cloning repository...${RESET}"
+    if git clone -q "$repo_url" "$temp_dir"; then
+        echo -e "  ${GRAY}Repository cloned to $temp_dir${RESET}"
+        
+        # Try to find an installer
+        if [[ -f "$temp_dir/install.sh" ]]; then
+            echo -e "  ${GRAY}Running install.sh...${RESET}"
+            bash "$temp_dir/install.sh"
+        elif [[ -f "$temp_dir/installer.sh" ]]; then
+             echo -e "  ${GRAY}Running installer.sh...${RESET}"
+            bash "$temp_dir/installer.sh"
+        else
+            show_status "$RED" "No installer script found in the repository."
+            ls -F "$temp_dir" # Show files for debugging context if needed
+        fi
+    else
+        show_status "$RED" "Failed to clone repository."
+    fi
+    
+    # Cleanup
+    rm -rf "$temp_dir"
+    wait_key
+}
+
+other_tools_menu() {
+    while true; do
+        draw_header
+        echo -e "  ${BOLD}Other Tools${RESET}\n"
+        echo -e "  ${BOLD}1.${RESET} 📦 Install gomenu"
+        echo -e "  ${BOLD}2.${RESET} 🔙 Back to Main Menu"
+        echo -e "\n${BLUE}${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
+        
+        read -p "  Selection [1-2]: " choice
+        
+        case $choice in
+            1)
+                install_gomenu
+                ;;
+            2)
+                break
+                ;;
+            *)
+                show_status "$RED" "Invalid selection."
+                sleep 1
+                ;;
+        esac
+    done
+}
+
 # --- MAIN MENU & TUI ---
 manage_aliases() {
     while true; do
@@ -153,10 +216,11 @@ manage_aliases() {
         echo -e "  ${BOLD}3.${RESET} ➖ Remove Alias"
         echo -e "  ${BOLD}4.${RESET} 💾 Backup to JSON"
         echo -e "  ${BOLD}5.${RESET} 📥 Restore from JSON"
-        echo -e "  ${BOLD}6.${RESET} 🚪 Exit"
+        echo -e "  ${BOLD}6.${RESET} 🛠  Other Tools"
+        echo -e "  ${BOLD}7.${RESET} 🚪 Exit"
         echo -e "\n${BLUE}${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
         
-        read -p "  Selection [1-6]: " choice
+        read -p "  Selection [1-7]: " choice
         
         case $choice in
             1)
@@ -202,6 +266,9 @@ manage_aliases() {
                 wait_key
                 ;;
             6)
+                other_tools_menu
+                ;;
+            7)
                 echo -e "\n  ${CYAN}Happy coding!${RESET}"
                 break
                 ;;
