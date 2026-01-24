@@ -5,6 +5,7 @@ REPO_RAW_URL="https://raw.githubusercontent.com/sdewis/ShellAliasManager/main/al
 REPO_PLACEHOLDERS_URL="https://raw.githubusercontent.com/sdewis/ShellAliasManager/main/alias_manager_placeholders.sh"
 INSTALL_PATH="$HOME/.alias_manager.sh"
 PLACEHOLDERS_PATH="$HOME/.alias_manager_placeholders.sh"
+FUNCTIONS_DIR="$HOME/.alias_manager/functions"
 TARGET_RC="$HOME/.bashrc"
 
 # --- UI COLORS ---
@@ -37,7 +38,8 @@ fi
 echo -e "  ${BOLD}Plan:${RESET}"
 echo -e "  1. Install script to: ${CYAN}$INSTALL_PATH${RESET}"
 echo -e "  2. Install placeholders to: ${CYAN}$PLACEHOLDERS_PATH${RESET}"
-echo -e "  3. Modify shell config: ${CYAN}$TARGET_RC${RESET} ($SHELL_NAME)"
+echo -e "  3. Create functions dir: ${CYAN}$FUNCTIONS_DIR${RESET}"
+echo -e "  4. Modify shell config: ${CYAN}$TARGET_RC${RESET} ($SHELL_NAME)"
 echo -e ""
 
 # Ensure we can read from user input even if script is piped via curl
@@ -74,7 +76,9 @@ else
 fi
 chmod +x "$INSTALL_PATH"
 [[ -f "$PLACEHOLDERS_PATH" ]] && chmod +x "$PLACEHOLDERS_PATH"
+mkdir -p "$FUNCTIONS_DIR"
 print_success "Script installed to $INSTALL_PATH"
+print_success "Functions directory created at $FUNCTIONS_DIR"
 
 # 4. Update RC File
 print_step "Updating $TARGET_RC..."

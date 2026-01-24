@@ -3,6 +3,7 @@
 # --- CONFIGURATION & PATHS ---
 MANAGED_TAG="#@managed_alias"
 PLACEHOLDERS_FILE="$HOME/.alias_manager_placeholders.sh"
+FUNCTIONS_DIR="$HOME/.alias_manager/functions"
 
 # Detect shell config file
 if [[ "$SHELL" == *"zsh"* ]]; then
@@ -14,6 +15,13 @@ fi
 # Load Dynamic Placeholders
 if [[ -f "$PLACEHOLDERS_FILE" ]]; then
     source "$PLACEHOLDERS_FILE"
+fi
+
+# Load Managed Functions
+if [[ -d "$FUNCTIONS_DIR" ]]; then
+    for f in "$FUNCTIONS_DIR"/*.bash; do
+        [[ -f "$f" ]] && source "$f"
+    done
 fi
 
 # --- UI COLORS ---
@@ -144,6 +152,143 @@ for a in data:
     show_status "$GREEN" "Import complete."
 }
 
+# --- FUNCTION MANAGEMENT ---
+list_managed_functions() {
+    if [[ ! -d "$FUNCTIONS_DIR" || -z "$(ls -A "$FUNCTIONS_DIR" 2>/dev/null)" ]]; then
+        echo -e "    ${GRAY}(No functions found)${RESET}"
+        return
+    fi
+    for f in "$FUNCTIONS_DIR"/*.bash; do
+        local fname=$(basename "$f" .bash)
+        echo -e "    ${GREEN}ƒ${RESET} ${fname}"
+    done
+}
+
+add_managed_function() {
+    local name="$1"
+    # Basic validation for filename safety
+    if [[ ! "$name" =~ ^[a-zA-Z0-9_]+$ ]]; then
+        show_status "$RED" "Invalid name. Use only alphanumeric characters and underscores."
+        return
+    fi
+    
+    local file_path="$FUNCTIONS_DIR/$name.bash"
+    if [[ -f "$file_path" ]]; then
+        show_status "$RED" "Function '$name' already exists."
+        return
+    fi
+    
+    # Create template
+    mkdir -p "$FUNCTIONS_DIR"
+    echo "#!/bin/bash" > "$file_path"
+    echo "" >> "$file_path"
+    echo "$name() {" >> "$file_path"
+    echo "    echo \"Hello from $name!\"" >> "$file_path"
+    echo "}" >> "$file_path"
+    
+    # Open editor
+    local editor=${EDITOR:-nano}
+    if command -v "$editor" &>/dev/null; then
+        $editor "$file_path"
+        source "$file_path" # Load immediately
+        show_status "$GREEN" "Function '$name' saved and loaded."
+    else
+        show_status "$YELLOW" "Created at $file_path (Editor not found)."
+    fi
+}
+
+edit_managed_function() {
+    local name="$1"
+    local file_path="$FUNCTIONS_DIR/$name.bash"
+    
+    if [[ ! -f "$file_path" ]]; then
+        show_status "$RED" "Function file not found."
+        return
+    fi
+    
+    local editor=${EDITOR:-nano}
+    if command -v "$editor" &>/dev/null; then
+        $editor "$file_path"
+        source "$file_path" # Reload
+        show_status "$GREEN" "Function '$name' updated."
+    else
+        show_status "$RED" "No suitable editor found (tried $editor)."
+    fi
+}
+
+remove_managed_function() {
+    local name="$1"
+    local file_path="$FUNCTIONS_DIR/$name.bash"
+    
+    if [[ -f "$file_path" ]]; then
+        rm "$file_path"
+        unset -f "$name" 2>/dev/null
+        show_status "$GREEN" "Function '$name' deleted."
+    else
+        show_status "$RED" "Function not found."
+    fi
+}
+
+manage_functions_menu() {
+    while true; do
+        draw_header
+        echo -e "  ${BOLD}Manage Functions${RESET}"
+        echo -e "  ${GRAY}Stored in: $FUNCTIONS_DIR${RESET}\n"
+        
+        echo -e "  ${BOLD}1.${RESET} 📋 List Functions"
+        echo -e "  ${BOLD}2.${RESET} ➕ Add New Function"
+        echo -e "  ${BOLD}3.${RESET} ✏️  Edit Function"
+        echo -e "  ${BOLD}4.${RESET} ➖ Remove Function"
+        echo -e "  ${BOLD}5.${RESET} 🔙 Back"
+        echo -e "\n${BLUE}${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
+        
+        read -p "  Selection [1-5]: " choice
+        
+        case $choice in
+            1)
+                draw_header
+                echo -e "  ${BOLD}Managed Functions:${RESET}\n"
+                list_managed_functions
+                wait_key
+                ;;
+            2)
+                draw_header
+                echo -e "  ${BOLD}Add Function${RESET}"
+                read -p "  Enter function name (e.g., my_utils): " name
+                if [[ -n "$name" ]]; then
+                    add_managed_function "$name"
+                fi
+                wait_key
+                ;;
+            3)
+                draw_header
+                echo -e "  ${BOLD}Edit Function${RESET}"
+                read -p "  Enter function name to edit: " name
+                if [[ -n "$name" ]]; then
+                    edit_managed_function "$name"
+                fi
+                wait_key
+                ;;
+            4)
+                draw_header
+                echo -e "  ${BOLD}Remove Function${RESET}"
+                read -p "  Enter function name to remove: " name
+                if [[ -n "$name" ]]; then
+                    remove_managed_function "$name"
+                fi
+                wait_key
+                ;;
+            5)
+                break
+                ;;
+            *)
+                show_status "$RED" "Invalid selection."
+                sleep 1
+                ;;
+        esac
+    done
+}
+
 # --- OTHER TOOLS ---
 install_gomenu() {
     draw_header
@@ -219,11 +364,12 @@ manage_aliases() {
         echo -e "  ${BOLD}3.${RESET} ➖ Remove Alias"
         echo -e "  ${BOLD}4.${RESET} 💾 Backup to JSON"
         echo -e "  ${BOLD}5.${RESET} 📥 Restore from JSON"
-        echo -e "  ${BOLD}6.${RESET} 🛠  Other Tools"
-        echo -e "  ${BOLD}7.${RESET} 🚪 Exit"
+        echo -e "  ${BOLD}6.${RESET} 𝑓  Manage Functions"
+        echo -e "  ${BOLD}7.${RESET} 🛠  Other Tools"
+        echo -e "  ${BOLD}8.${RESET} 🚪 Exit"
         echo -e "\n${BLUE}${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
         
-        read -p "  Selection [1-7]: " choice
+        read -p "  Selection [1-8]: " choice
         
         case $choice in
             1)
@@ -269,9 +415,12 @@ manage_aliases() {
                 wait_key
                 ;;
             6)
-                other_tools_menu
+                manage_functions_menu
                 ;;
             7)
+                other_tools_menu
+                ;;
+            8)
                 echo -e "\n  ${CYAN}Happy coding!${RESET}"
                 break
                 ;;
