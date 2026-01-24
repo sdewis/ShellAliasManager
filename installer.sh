@@ -39,7 +39,14 @@ echo -e "  1. Install script to: ${CYAN}$INSTALL_PATH${RESET}"
 echo -e "  2. Install placeholders to: ${CYAN}$PLACEHOLDERS_PATH${RESET}"
 echo -e "  3. Modify shell config: ${CYAN}$TARGET_RC${RESET} ($SHELL_NAME)"
 echo -e ""
-read -p "  Do you want to proceed? (y/N): " confirm
+
+# Ensure we can read from user input even if script is piped via curl
+if [ -c /dev/tty ]; then
+    read -p "  Do you want to proceed? (y/N): " confirm < /dev/tty
+else
+    read -p "  Do you want to proceed? (y/N): " confirm
+fi
+
 if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
     echo -e "\n  ${RED}Installation cancelled by user.${RESET}"
     exit 0
