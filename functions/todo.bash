@@ -7,7 +7,7 @@ todo() {
         echo -e "${GREEN}✔ Task added.${RESET}"
     fi
 }
-done() {
+fin() {
     [[ -z "$1" ]] && echo "Usage: done <line_number>" && return 1
     sed -i "${1}d" .todo && echo -e "${YELLOW}✔ Task cleared.${RESET}"
 }
