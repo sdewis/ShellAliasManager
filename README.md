@@ -16,7 +16,7 @@ A colourful, interactive terminal user interface (TUI) for managing your Bash an
 You can install the Alias Manager TUI with a single command:  
 
 ```bash
-sudo dpkg -i shell-alias-manager_1.0-1_all.deb
+sudo dpkg -i shell-alias-manager_1.1-1_all.deb
 ```
 
 Or download the latest `.deb` release from GitHub.
