@@ -16,7 +16,10 @@ A colourful, interactive terminal user interface (TUI) for managing your Bash an
 You can install the Alias Manager TUI with a single command:  
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/sdewis/ShellAliasManager/main/installer.sh | bash
+sudo dpkg -i shell-alias-manager_1.0-1_all.deb
+```
+
+Or download the latest `.deb` release from GitHub.
 ```
 
 ## **🛠 Usage**
@@ -24,7 +27,7 @@ curl -sSL https://raw.githubusercontent.com/sdewis/ShellAliasManager/main/instal
 Once installed, restart your terminal or run `source ~/.bashrc` (or `~/.zshrc`). Simply type the following command to launch the manager:  
 
 ```bash
-manage_aliases
+manage-aliases
 ```
 
 ### **Dynamic Placeholders**
