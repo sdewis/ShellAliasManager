@@ -1,0 +1,8 @@
+*.deb
+*.bak.*
+.DS_Store
+*.swp
+*.tmp
+aliases.json
+AI_SESSION.md
+.todo

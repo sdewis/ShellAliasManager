@@ -1,70 +1,97 @@
-# **🚀 Alias Manager TUI**
+# Shell Alias Manager
 
-A colourful, interactive terminal user interface (TUI) for managing your Bash and Zsh aliases with ease. No more manual editing of `.bashrc` or `.zshrc`—add, remove, backup, and restore aliases through a slick, color-coded interface.
+A terminal tool for managing Bash and Zsh aliases — interactive TUI or scriptable CLI. Managed aliases are tagged with `#@managed_alias` so your hand-written shell config stays separate.
 
-## **✨ Features**
+## Features
 
-* **Interactive TUI**: A beautiful terminal interface with color-coded menus and status indicators.  
-* **Smart Tagging**: Automatically tracks aliases added by the tool using the `#@managed_alias` tag, ensuring your system defaults remain untouched.  
-* **Dynamic Placeholders**: Use keywords like `{localnet}` or `{git_branch}` in your commands; the tool automatically resolves them to their live values at runtime.  
-* **Backup & Restore**: Export your managed aliases to a portable JSON file and restore them on any machine.  
-* **Cross-Shell Support**: Works seamlessly with both **Bash** and **Zsh**.  
-* **Safe Operations**: Automatically creates backups of your configuration files before making changes.
+- **TUI and CLI** — `manage-aliases` opens a menu; subcommands work in scripts and CI
+- **Smart tagging** — only `#@managed_alias` entries are touched by the tool
+- **Dynamic placeholders** — `{localnet}`, `{git_branch}`, `{public_ip}`, and more resolve at runtime
+- **Backup before writes** — shell config is timestamped before each change
+- **JSON export/import** — portable alias backups across machines
+- **Shell functions** — optional toolkit (mkcd, extract, todo, gsnap, …) in `~/.alias_manager/functions`
+- **Bash and Zsh** — auto-detects `~/.bashrc` or `~/.zshrc`
 
-## **🚀 Quick Install**
+## Quick install
 
-You can install the Alias Manager TUI with a single command:  
-
-```bash
-sudo dpkg -i shell-alias-manager_1.1-1_all.deb
-```
-
-Or download the latest `.deb` release from GitHub.
-```
-
-## **🛠 Usage**
-
-Once installed, restart your terminal or run `source ~/.bashrc` (or `~/.zshrc`). Simply type the following command to launch the manager:  
+From a clone:
 
 ```bash
-manage-aliases
+git clone https://github.com/sdewis/ShellAliasManager.git
+cd ShellAliasManager
+./install.sh
+source ~/.bashrc   # or ~/.zshrc
 ```
 
-### **Dynamic Placeholders**
+Or build a `.deb`:
 
-The tool supports intelligent string replacement that evaluates at runtime. New placeholders can be added to `~/.alias_manager_placeholders.sh`.
+```bash
+./packaging/build-deb.sh 2.0-1
+sudo dpkg -i shell-alias-manager_2.0-1_all.deb
+```
 
-**Available Placeholders:**
+## Usage
 
-* **`{localnet}`**: Resolves to your current local subnet CIDR (e.g., `192.168.1.0/24`).
-* **`{public_ip}`**: Resolves to your external public IP address.
-* **`{git_branch}`**: Resolves to the current Git branch name (or "no-branch").
-* **`{gateway}`**: Resolves to the default gateway IP.
-* **`{iso_time}`**: Resolves to the current ISO 8601 timestamp.
-* **`{timestamp}`**: Resolves to the current Unix timestamp.
-* **`{kernel_ver}`**: Resolves to the running kernel version.
-* **`{random_uuid}`**: Generates a new random UUID.
-* **`{today}`**: Resolves to today's date (YYYY-MM-DD).
+```bash
+manage-aliases              # interactive TUI
+manage-aliases list
+manage-aliases add scan "nmap -sn {localnet}"
+manage-aliases edit scan "nmap -sn {localnet} -oG -"
+manage-aliases remove scan
+manage-aliases export ~/aliases-backup.json
+manage-aliases import ~/aliases-backup.json
+manage-aliases placeholders
+manage-aliases help
+```
 
-**Example:**  
-Adding an alias named `scan` with command `nmap -sp {localnet}` will create an alias that always scans your *current* network, even if you switch Wi-Fi networks.
+### Dynamic placeholders
 
-## **📂 Project Structure**
+Edit `~/.alias_manager_placeholders.sh` to add custom placeholders.
 
-* `alias_manager.sh`: The core logic containing the TUI and alias management functions.
-* `alias_manager_placeholders.sh`: Definitions for dynamic placeholders and their backing functions.
-* `installer.sh`: An intelligent installer that handles dependencies, shell detection, and configuration sourcing.
-* `README.md`: You are here!
+| Placeholder     | Resolves to                    |
+|-----------------|--------------------------------|
+| `{localnet}`    | Current subnet CIDR            |
+| `{public_ip}`   | External IP                    |
+| `{git_branch}`  | Current git branch             |
+| `{gateway}`     | Default gateway                |
+| `{iso_time}`    | ISO 8601 timestamp             |
+| `{timestamp}`   | Unix timestamp                 |
+| `{kernel_ver}`  | Running kernel version         |
+| `{random_uuid}` | Random UUID                    |
+| `{today}`       | Today's date (YYYY-MM-DD)      |
 
-## **🔧 Dependencies**
+### Shell functions
 
-The script is designed to be lightweight and uses standard tools found on most Unix-like systems:
+After install, these load automatically in new shells:
 
-* `python3` (for JSON processing)
-* `curl` (for installation and IP checks)
-* `grep`, `sed`, `awk`, `ip`
+| Command       | Purpose                          |
+|---------------|----------------------------------|
+| `alias_help`  | Command reference                |
+| `mkcd`        | mkdir -p and cd                  |
+| `extract`     | Extract archives                 |
+| `todo` / `fin`| Per-folder task list             |
+| `gsnap`       | Git snapshot branch              |
+| `snap_clean`  | Remove old gsnap branches        |
+| `self_update` | Pull latest from git             |
+| `sync_backup` | Commit and push repo changes     |
 
-## **🤝 Contributing**
+## Project layout
 
-Contributions are welcome! Feel free to fork the repo, add new placeholders, or improve the UI styling.  
-*Created with ❤️ for the terminal power user.*
+```
+bin/manage-aliases          CLI/TUI entry point
+lib/                        Core modules (aliases, backup, ui, …)
+functions/                  Optional shell function toolkit
+install.sh                  Local install + shell rc setup
+packaging/build-deb.sh      Build Debian package
+alias_manager.sh            Backward-compatible shim (v1.x)
+alias_manager_placeholders.sh  Default placeholder definitions
+tests/run.sh                Smoke tests
+```
+
+## Dependencies
+
+`bash`, `python3`, `curl`, `grep`, `sed`, `awk`, `ip` (iproute2)
+
+## Contributing
+
+Fork, add placeholders or functions, open a PR. Run `./tests/run.sh` before submitting.

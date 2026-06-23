@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export SAM_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+# shellcheck source=lib/init.sh
+source "$SAM_ROOT/lib/init.sh"
+
+sam_usage() {
+    cat << EOF
+Shell Alias Manager v${SAM_VERSION}
+
+Usage:
+  manage-aliases              Open interactive TUI (default)
+  manage-aliases tui          Open interactive TUI
+  manage-aliases list         List managed aliases
+  manage-aliases add NAME CMD Add a managed alias
+  manage-aliases edit NAME CMD  Update a managed alias
+  manage-aliases remove NAME  Remove a managed alias
+  manage-aliases export [FILE]  Export aliases to JSON (default: aliases.json)
+  manage-aliases import FILE  Import aliases from JSON
+  manage-aliases functions    List managed shell functions
+  manage-aliases placeholders List dynamic placeholders
+  manage-aliases help         Show this help
+
+Examples:
+  manage-aliases add scan "nmap -sn {localnet}"
+  manage-aliases export ~/aliases-backup.json
+EOF
+}
+
+cmd="${1:-tui}"
+
+case "$cmd" in
+    tui|"") manage_aliases ;;
+    list)
+        sam_list_managed_aliases | while IFS= read -r line; do
+            echo "${line#alias }"
+        done
+        ;;
+    add)
+        [[ $# -ge 3 ]] || { echo "Usage: manage-aliases add NAME CMD" >&2; exit 1; }
+        sam_add_managed_alias "$2" "$3"
+        ;;
+    edit)
+        [[ $# -ge 3 ]] || { echo "Usage: manage-aliases edit NAME CMD" >&2; exit 1; }
+        sam_edit_managed_alias "$2" "$3"
+        ;;
+    remove|rm|delete)
+        [[ $# -ge 2 ]] || { echo "Usage: manage-aliases remove NAME" >&2; exit 1; }
+        sam_remove_managed_alias "$2"
+        ;;
+    export)
+        sam_export_to_json "${2:-aliases.json}"
+        ;;
+    import)
+        [[ $# -ge 2 ]] || { echo "Usage: manage-aliases import FILE" >&2; exit 1; }
+        sam_import_from_json "$2"
+        ;;
+    functions|funcs)
+        sam_list_managed_functions
+        ;;
+    placeholders|ph)
+        sam_list_placeholders
+        ;;
+    help|-h|--help)
+        sam_usage
+        ;;
+    *)
+        echo "Unknown command: $cmd" >&2
+        sam_usage >&2
+        exit 1
+        ;;
+esac
