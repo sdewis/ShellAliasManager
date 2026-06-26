@@ -16,6 +16,10 @@ source "$_sam_lib_dir/colors.sh"
 source "$_sam_lib_dir/placeholders.sh"
 # shellcheck source=lib/shell-functions.sh
 source "$_sam_lib_dir/shell-functions.sh"
+# shellcheck source=lib/history.sh
+source "$_sam_lib_dir/history.sh"
+# shellcheck source=lib/prompt.sh
+source "$_sam_lib_dir/prompt.sh"
 
 sam_load_placeholders
 sam_load_user_functions
